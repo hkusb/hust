@@ -6,7 +6,7 @@
 
 #include <netinet/in.h>
 
-#define PCAP_FILE "1.dump"
+#define PCAP_FILE "222.pcap"
 
 #define MAX_ETH_FRAME 644235875
 
@@ -16,7 +16,7 @@
 
 #define ERROR_PCAP_PARSE_FAILED -3
 
-#define OVERTIME 600 //flow超时时间，单位秒
+#define OVERTIME 60 //flow超时时间，单位秒
 
 /****
  * 添加类型定义
@@ -196,12 +196,13 @@ typedef struct Node{    /* 定义单链表结点类型 */
     int sc_bytes;		 //sc方向bytes数
     int cs_packet_size_min; //cs方向数据包大小的最小值
     int cs_packet_size_max; //cs方向数据包大小的最大值
-    int cs_packet_size_mean;//cs方向数据包大小的平均值
-    int cs_packet_size_sd;  //cs方向数据包大小的标准差
-    int sc_packet_size_max; //sc方向数据包大小的最小值
+    double cs_packet_size_mean;//cs方向数据包大小的平均值
+    double cs_packet_size_sd;  //cs方向数据包大小的标准差
+    int sc_packet_size_min; //sc方向数据包大小的最小值
     int sc_packet_size_max; //sc方向数据包大小的最大值
-    int sc_packet_size_mean;//sc方向数据包大小的平均值
-    int sc_packet_size_sd;  //sc方向数据包大小的标准差
+    double sc_packet_size_mean;//sc方向数据包大小的平均值
+    double sc_packet_size_sd;  //sc方向数据包大小的标准差
+    int flag;				//标志该流的特征是否已提取，-1表示已提取
     struct Node *next;
 }Node;
 /***数据包结构定义完成****/

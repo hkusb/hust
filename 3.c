@@ -151,7 +151,7 @@ void printPcap(void * data,size_t size,pcap_header *ph){
 	printf("%04x~",a);
  
 	}*/
-	 printList(pList);
+	 //printList(pList);
 	printf("\n============\n");
 
 }
