@@ -6,6 +6,8 @@
 
 #include <netinet/in.h>
 
+#include <math.h>
+
 #define PCAP_FILE "222.pcap"
 
 #define MAX_ETH_FRAME 644235875
@@ -16,7 +18,7 @@
 
 #define ERROR_PCAP_PARSE_FAILED -3
 
-#define OVERTIME 60 //flow超时时间，单位秒
+#define OVERTIME 50 //flow超时时间，单位秒
 
 /****
  * 添加类型定义
@@ -53,7 +55,7 @@ struct in_addr
 
  Magic：4B：0x1A 2B 3C 4D:用来标示文件的开始
 
- Major：2B，0x02 00:当前文件主要的版本号  
+ Major：2B，0x02 00:当前文件主要的版本号
 
  Minor：2B，0x04 00当前文件次要的版本号
 
@@ -61,7 +63,7 @@ struct in_addr
 
  SigFigs：4B时间戳的精度；全零
 
- SnapLen：4B最大的存储长度    
+ SnapLen：4B最大的存储长度
 
  LinkType：4B链路类型
 
@@ -85,13 +87,13 @@ struct in_addr
 
 typedef struct pcap_file_header pcap_file_header;
 
- 
+
 /*
  Packet 包头和Packet数据组成
 
  字段说明：
 
- Timestamp：时间戳高位，精确到seconds     
+ Timestamp：时间戳高位，精确到seconds
 
  Timestamp：时间戳低位，精确到microseconds
 
@@ -115,6 +117,20 @@ typedef struct  timestamp
 }
 timestamp;
 
+struct time_diff
+{
+	double time;
+	struct time_diff *next;
+};
+
+struct time_diff_fetures
+{
+    double min;
+    double max;
+    double mean;
+    double sd;
+};
+
 typedef struct pcap_header
 {
 
@@ -124,7 +140,7 @@ typedef struct pcap_header
 
 	bpf_u_int32 len;
 
- 
+
 }pcap_header;
 
 /********************************************/
@@ -171,7 +187,7 @@ u_int16 UrgentPointer;  //紧急指针
 typedef struct Flow
 {
 //struct in_addr SrcIP; //源IP地址
-//struct in_addr DstIP; //目的IP地址	
+//struct in_addr DstIP; //目的IP地址
 u_int32_t SrcIP; //源IP地址
 u_int32_t DstIP; //目的IP地址
 u_int16 SrcPort; //源端口
@@ -202,6 +218,10 @@ typedef struct Node{    /* 定义单链表结点类型 */
     int sc_packet_size_max; //sc方向数据包大小的最大值
     double sc_packet_size_mean;//sc方向数据包大小的平均值
     double sc_packet_size_sd;  //sc方向数据包大小的标准差
+    struct time_diff *cs_time;
+    struct time_diff *sc_time;
+    struct time_diff_fetures cs_tdf;
+    struct time_diff_fetures sc_tdf;
     int flag;				//标志该流的特征是否已提取，-1表示已提取
     struct Node *next;
 }Node;

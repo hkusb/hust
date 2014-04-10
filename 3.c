@@ -106,16 +106,24 @@ void printPcap(void * data,size_t size,pcap_header *ph){
    IPHeader_t *iph;
    TCPHeader_t *tcph;
    ether=(struct FramHeader_t*)data;
+   //不是ipv4，返回
+   if (ether->FrameType != 0x0008)
+		return;
    iph=(struct IPHeader_t*)(data+14);
-   tcph=(struct TCPHeader_t*)(data+14+20);
+   //不是TCP、UDP，返回
+   if (iph->Protocol != 6 && iph->Protocol != 17)
+		return;
+   tcph=(struct TCPHeader_t*)(data+14+(((iph->Ver_HLen) & 0x0F) << 2));
    printf("smac %02x:%02x:%02x:%02x:%02x:%02x\r\n",*(ether->SrcMAC),*(ether->SrcMAC+1),
    *(ether->SrcMAC+2),*(ether->SrcMAC+3),*(ether->SrcMAC+4),*(ether->SrcMAC+5));
    printf("dmac %02x:%02x:%02x:%02x:%02x:%02x\r\n",*(ether->DstMAC),*(ether->DstMAC+1),
    *(ether->DstMAC+2),*(ether->DstMAC+3),*(ether->DstMAC+4),*(ether->DstMAC+5));
    printf("以太网类型:%04x\n",ntohs(ether->FrameType));
-  // printf("原IP:%s,目的ip:%s\n",inet_ntoa(iph->SrcIP),inet_ntoa(iph->DstIP));
-  // printf("原IP:%s\n",inet_ntoa((struct in_addr*)(iph->SrcIP)));
-   //printf("目的ip:%s\n",inet_ntoa((struct in_addr*)(iph->DstIP)));
+   struct in_addr ip;
+   ip.s_addr = iph->SrcIP;
+   printf("原IP:%s",inet_ntoa(ip));
+   ip.s_addr = iph->DstIP;
+   printf("目的ip:%s",inet_ntoa(ip));
    myflow.DstIP=iph->DstIP;
    myflow.SrcIP=iph->SrcIP;
    myflow.Protocol=iph->Protocol;
@@ -222,7 +230,7 @@ int main (int argc, const char * argv[])
 
 		}
 
-		printfPcapHeader(&ph);
+		//printfPcapHeader(&ph);
 
  
  
